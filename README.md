@@ -55,7 +55,7 @@ flowchart LR
 
 - macOS 12 或更高版本（当前一键 PAC 与证书安装仅实现 macOS）。
 - Node.js 20.19+ 或 22.12+。
-- Rust 1.86+。
+- Rust 1.88+。
 - Xcode Command Line Tools。
 
 ### 开发运行
@@ -110,13 +110,13 @@ GitHub Actions 包含两条流水线：
 发布一个新版本前，先让 `src-tauri/tauri.conf.json` 与 `src-tauri/Cargo.toml` 的版本一致，然后执行：
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
 Release 会包含：
 
-- macOS Apple Silicon（arm64）`.dmg`
+- macOS Apple Silicon（arm64）`.app.tar.gz`
 - Windows x64 NSIS `-setup.exe`
 
 当前自动构建产物尚未配置 Apple 公证和 Windows 代码签名，只适合开发测试。正式对外分发前应配置签名 Secrets，并增加签名、公证和安装回归步骤。

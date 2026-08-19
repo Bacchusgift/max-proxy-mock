@@ -1,10 +1,10 @@
 [package]
 name = "max-proxy-mock"
-version = "0.2.0"
+version = "0.2.1"
 description = "Local API recording, mocking and contract convergence desktop app"
 authors = ["Max Proxy Mock"]
 edition = "2021"
-rust-version = "1.86"
+rust-version = "1.88"
 
 [lib]
 name = "max_proxy_mock_lib"

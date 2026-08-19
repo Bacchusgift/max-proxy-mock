@@ -101,7 +101,7 @@ npm run tauri build -- --debug
 make legacy-test
 ```
 
-GitHub Release 由 `.github/workflows/release.yml` 负责。推送与应用版本一致的 `v*` 标签会构建 macOS arm64 DMG 和 Windows x64 NSIS EXE。不要在应用版本未更新时重复使用旧标签；已推送的发布标签不应被强制移动。
+GitHub Release 由 `.github/workflows/release.yml` 负责。推送与应用版本一致的 `v*` 标签会构建 macOS arm64 App 压缩包和 Windows x64 NSIS EXE。不要在应用版本未更新时重复使用旧标签；已推送的发布标签不应被强制移动。
 
 开发脚本会清理属于本项目的旧端口进程。不要使用宽泛的 `killall`，也不要终止无法确认归属的端口进程。
 

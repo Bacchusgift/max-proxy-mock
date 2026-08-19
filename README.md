@@ -100,6 +100,27 @@ make check
 
 该命令执行 React/TypeScript 类型检查与 Rust `cargo check`。旧 Go 实现可单独执行 `make legacy-test`。
 
+## 自动构建与发布
+
+GitHub Actions 包含两条流水线：
+
+- `CI`：push 到 `main` 或提交 Pull Request 时，检查 React/TypeScript、Rust 和旧 Go 测试。
+- `Release desktop apps`：推送 `v*` 标签或在 Actions 页面手动触发时，创建 GitHub Release。
+
+发布一个新版本前，先让 `src-tauri/tauri.conf.json` 与 `src-tauri/Cargo.toml` 的版本一致，然后执行：
+
+```bash
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+Release 会包含：
+
+- macOS Apple Silicon（arm64）`.dmg`
+- Windows x64 NSIS `-setup.exe`
+
+当前自动构建产物尚未配置 Apple 公证和 Windows 代码签名，只适合开发测试。正式对外分发前应配置签名 Secrets，并增加签名、公证和安装回归步骤。
+
 ## 首次使用
 
 1. 新建项目，填写 API 域名，例如 `api.example.com`，不要填写 Path。

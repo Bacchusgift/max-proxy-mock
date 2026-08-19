@@ -1,0 +1,28 @@
+{
+  "name": "max-proxy-mock-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "tauri": "node scripts/tauri.mjs"
+  },
+  "dependencies": {
+    "@radix-ui/react-select": "^2.3.7",
+    "@radix-ui/react-separator": "^1.1.15",
+    "@radix-ui/react-tooltip": "^1.2.16",
+    "@tauri-apps/api": "^2.8.0",
+    "@vitejs/plugin-react": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.8.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4"
+  }
+}

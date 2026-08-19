@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Max Proxy Mock · 流量代理动画</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080c11;--panel:#0f151c;--panel2:#131b23;--line:#2a3540;--muted:#74818e;--text:#e8edf2;--lime:#b9f45e;--green:#65dda4;--violet:#bd96ff;--coral:#ff817b;--blue:#6cbcff;--amber:#ffc46c}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(900px 480px at 50% -120px,#1b3528 0,transparent 65%),radial-gradient(700px 500px at 100% 0,#241d3d 0,transparent 58%),var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Segoe UI",sans-serif}
+    button{font:inherit}
+    .app{width:min(1280px,100%);margin:0 auto;padding:34px 28px 42px}
+    header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:14px}.brand-mark{width:46px;height:46px;border:1px solid #40522f;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#202d1d,#111810);color:var(--lime);font:700 20px ui-monospace,SFMono-Regular,Menlo,monospace;box-shadow:0 16px 38px #0007,0 0 30px #b9f45e10}.eyebrow{margin:0 0 4px;color:#839174;font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1.7px}.title{margin:0;font-size:23px;letter-spacing:-.4px}.subtitle{margin:6px 0 0;color:var(--muted)}
+    .runtime{display:flex;align-items:center;gap:8px;color:#87939f;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.runtime i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px #65dda414,0 0 18px #65dda480;animation:pulse 1.8s ease-in-out infinite}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;padding:10px;border:1px solid #252f39;border-radius:13px;background:#0d1319cc;box-shadow:inset 0 1px #ffffff06;backdrop-filter:blur(14px)}
+    .modes{display:flex;gap:6px;flex-wrap:wrap}.mode{position:relative;height:38px;padding:0 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:#87939f;cursor:pointer;transition:.18s ease}.mode:hover{color:#dbe3e9;background:#151d25}.mode[aria-pressed="true"]{border-color:#3c4c31;background:#1b261a;color:#dfffaa;box-shadow:inset 0 1px #ffffff08}.mode small{margin-left:5px;color:var(--amber);font-size:9px;letter-spacing:.5px}
+    .playback{display:flex;gap:7px}.icon-button{height:36px;min-width:74px;padding:0 11px;border:1px solid #2c3742;border-radius:8px;background:#151d25;color:#aeb8c2;cursor:pointer}.icon-button:hover{border-color:#465460;color:#fff}
+    .canvas{position:relative;overflow:hidden;border:1px solid #26313b;border-radius:18px;background:linear-gradient(180deg,#0f161d,#0a0f14);box-shadow:inset 0 1px #ffffff07,0 26px 80px #0006}
+    .canvas:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff04 1px,transparent 1px),linear-gradient(90deg,#ffffff04 1px,transparent 1px);background-size:32px 32px;mask-image:linear-gradient(to bottom,#0009,transparent);pointer-events:none}
+    svg{position:relative;display:block;width:100%;height:auto;min-height:500px}
+    .route{fill:none;stroke:var(--line);stroke-width:2;stroke-linecap:round;stroke-dasharray:6 7;opacity:.28;transition:.25s}.route.active{opacity:.95;stroke:#4b5c68}.route.config{stroke:var(--violet)}.route.mock{stroke:var(--lime)}.route.record{stroke:var(--green)}.route.verify{stroke:var(--amber)}.route.response{stroke:var(--blue)}
+    .node rect.surface{fill:#111922;stroke:#303b46;stroke-width:1.4}.node text{fill:var(--text)}.node .label{font-size:15px;font-weight:600}.node .meta{font-size:11px;fill:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.node .icon-bg{stroke-width:1}.node.dim{opacity:.35}.node.active rect.surface{stroke:#63754c}.node.active .halo{opacity:1}.halo{fill:none;stroke:#b9f45e20;stroke-width:10;opacity:0;transition:.25s}.badge{font-size:9px;font-weight:700;letter-spacing:1px}.packet{filter:drop-shadow(0 0 7px currentColor)}
+    .legend{position:absolute;left:20px;bottom:18px;display:flex;gap:16px;flex-wrap:wrap;color:#76838f;font-size:11px}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:18px;height:2px;border-radius:2px}.legend .request{background:var(--coral)}.legend .response{background:var(--blue)}.legend .record{background:var(--green)}
+    .explain{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:22px;align-items:center;margin-top:14px;padding:17px 19px;border:1px solid #26313b;border-radius:13px;background:#0d1319}.explain h2{margin:0 0 5px;font-size:15px}.explain p{margin:0;color:#7b8894}.state{min-width:152px;text-align:right}.state span{display:block;color:#64717d;font-size:10px;letter-spacing:1px}.state strong{display:block;margin-top:3px;color:var(--lime);font:600 13px ui-monospace,SFMono-Regular,Menlo,monospace}
+    .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.fact{padding:15px 16px;border:1px solid #242f38;border-radius:11px;background:#0c1218}.fact span{display:block;color:#71808d;font-size:11px}.fact strong{display:block;margin-top:5px;color:#dfe6eb;font-size:13px;font-weight:600}
+    @keyframes pulse{50%{opacity:.55;box-shadow:0 0 0 8px #65dda408,0 0 22px #65dda4a0}}
+    @media(max-width:760px){.app{padding:22px 14px 32px}header{align-items:flex-start;flex-direction:column}.runtime{display:none}.toolbar{align-items:flex-start;flex-direction:column}.playback{align-self:flex-end}svg{min-height:390px}.legend{position:static;padding:14px 16px}.explain{grid-template-columns:1fr}.state{text-align:left}.facts{grid-template-columns:1fr}.title{font-size:20px}}
+    @media(prefers-reduced-motion:reduce){.runtime i{animation:none}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><div class="brand-mark">{ }</div><div><p class="eyebrow">MAX PROXY MOCK · FLOW LAB</p><h1 class="title">一条 API 请求如何被代理、录制与 Mock</h1><p class="subtitle">选择一个场景，观察本地代理在浏览器与真实后端之间承担的角色。</p></div></div>
+      <div class="runtime"><i></i>LOCAL ONLY · 127.0.0.1</div>
+    </header>
+
+    <section class="toolbar" aria-label="动画控制">
+      <div class="modes" role="group" aria-label="流量场景">
+        <button class="mode" data-mode="proxy" aria-pressed="true">正常转发</button>
+        <button class="mode" data-mode="record" aria-pressed="false">录制接口</button>
+        <button class="mode" data-mode="mock" aria-pressed="false">Mock 响应</button>
+        <button class="mode" data-mode="verify" aria-pressed="false">契约校验 <small>规划</small></button>
+      </div>
+      <div class="playback">
+        <button class="icon-button" id="toggle" type="button">暂停</button>
+        <button class="icon-button" id="restart" type="button">重新播放</button>
+      </div>
+    </section>
+
+    <section class="canvas" aria-label="流量代理动态图">
+      <svg id="flow" viewBox="0 0 1200 600" role="img" aria-labelledby="flowTitle flowDesc">
+        <title id="flowTitle">Max Proxy Mock 流量代理链路</title>
+        <desc id="flowDesc">浏览器根据 PAC 将目标域名流量发送到本地 MITM 代理，代理可以转发、录制、返回 Mock，未来还会执行契约比较。</desc>
+        <defs>
+          <linearGradient id="browserFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172636"/><stop offset="1" stop-color="#101820"/></linearGradient>
+          <linearGradient id="proxyFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#21301b"/><stop offset="1" stop-color="#111a16"/></linearGradient>
+          <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
+        </defs>
+
+        <path id="pac-config" class="route config" d="M 194 250 C 235 155, 280 126, 346 126"/>
+        <path id="request-proxy" class="route" d="M 210 316 C 300 316, 360 316, 444 316"/>
+        <path id="proxy-backend" class="route" d="M 618 294 C 690 235, 748 194, 820 174"/>
+        <path id="backend-proxy" class="route response" d="M 820 202 C 750 242, 690 292, 618 330"/>
+        <path id="proxy-browser" class="route response" d="M 444 340 C 360 361, 294 361, 210 338"/>
+        <path id="proxy-mock" class="route mock" d="M 618 316 C 696 316, 747 316, 820 316"/>
+        <path id="mock-proxy" class="route mock" d="M 820 341 C 748 364, 695 363, 618 341"/>
+        <path id="proxy-store" class="route record" d="M 546 370 C 578 424, 664 458, 820 458"/>
+        <path id="store-ui" class="route record" d="M 974 458 C 1000 458, 1020 458, 1040 458"/>
+        <path id="backend-compare" class="route verify" d="M 912 222 C 912 268, 912 282, 912 300"/>
+        <path id="mock-compare" class="route verify" d="M 912 380 C 912 400, 912 410, 912 422"/>
+
+        <g class="node" data-node="browser" transform="translate(42 268)">
+          <rect class="halo" x="-5" y="-5" width="178" height="106" rx="19"/><rect class="surface" width="168" height="96" rx="15" fill="url(#browserFill)"/>
+          <rect class="icon-bg" x="16" y="19" width="38" height="38" rx="10" fill="#1b3044" stroke="#2c5274"/><path d="M25 29h20v15H25zm0 0 5-5m15 5-5-5" fill="none" stroke="#6cbcff" stroke-width="2" stroke-linecap="round"/>
+          <text class="label" x="66" y="37">浏览器</text><text class="meta" x="66" y="56">frontend app</text><text class="badge" x="17" y="80" fill="#6cbcff">REQUEST SOURCE</text>
+        </g>
+
+        <g class="node" data-node="pac" transform="translate(346 83)">
+          <rect class="halo" x="-5" y="-5" width="180" height="92" rx="18"/><rect class="surface" width="170" height="82" rx="14"/>
+          <circle class="icon-bg" cx="31" cy="31" r="17" fill="#2b2141" stroke="#513876"/><path d="M23 31h16M31 23v16" stroke="#bd96ff" stroke-width="2" stroke-linecap="round"/>
+          <text class="label" x="58" y="31">系统 PAC</text><text class="meta" x="58" y="50">domain → proxy</text><text class="badge" x="17" y="69" fill="#bd96ff">SELECTIVE ROUTE</text>
+        </g>
+
+        <g class="node" data-node="proxy" transform="translate(444 260)">
+          <rect class="halo" x="-7" y="-7" width="188" height="124" rx="22"/><rect class="surface" width="174" height="110" rx="17" fill="url(#proxyFill)" stroke="#4a6138"/>
+          <rect class="icon-bg" x="17" y="18" width="42" height="42" rx="11" fill="#27371e" stroke="#486532"/><path d="M29 41 36 27l-1 11h10L34 52l2-11z" fill="#b9f45e"/>
+          <text class="label" x="70" y="37">MITM Proxy</text><text class="meta" x="70" y="57">127.0.0.1:8899</text><text class="badge" x="18" y="86" fill="#b9f45e">RUST TRAFFIC ENGINE</text>
+        </g>
+
+        <g class="node" data-node="backend" transform="translate(820 128)">
+          <rect class="halo" x="-5" y="-5" width="190" height="102" rx="19"/><rect class="surface" width="180" height="92" rx="15"/>
+          <rect class="icon-bg" x="16" y="18" width="39" height="39" rx="10" fill="#2a2020" stroke="#563331"/><path d="M27 28h17M27 34h17M27 40h17M27 46h11" stroke="#ff817b" stroke-width="2" stroke-linecap="round"/>
+          <text class="label" x="66" y="36">真实后端</text><text class="meta" x="66" y="56">api.example.com</text><text class="badge" x="17" y="79" fill="#ff817b">UPSTREAM</text>
+        </g>
+
+        <g class="node" data-node="mock" transform="translate(820 274)">
+          <rect class="halo" x="-5" y="-5" width="190" height="102" rx="19"/><rect class="surface" width="180" height="92" rx="15"/>
+          <rect class="icon-bg" x="16" y="18" width="39" height="39" rx="10" fill="#23311c" stroke="#405c2d"/><text x="27" y="44" fill="#b9f45e" font-size="22" font-weight="700">{ }</text>
+          <text class="label" x="66" y="36">Mock Engine</text><text class="meta" x="66" y="56">status + headers + body</text><text class="badge" x="17" y="79" fill="#b9f45e">LOCAL RESPONSE</text>
+        </g>
+
+        <g class="node" data-node="store" transform="translate(820 422)">
+          <rect class="halo" x="-5" y="-5" width="190" height="98" rx="19"/><rect class="surface" width="180" height="88" rx="15"/>
+          <ellipse cx="35" cy="27" rx="17" ry="8" fill="#1c3328" stroke="#3c6c52"/><path d="M18 27v24c0 5 8 8 17 8s17-3 17-8V27M18 39c0 5 8 8 17 8s17-3 17-8" fill="none" stroke="#65dda4" stroke-width="2"/>
+          <text class="label" x="66" y="34">SQLite</text><text class="meta" x="66" y="54">record &amp; diff</text><text class="badge" x="17" y="77" fill="#65dda4">LOCAL STORAGE</text>
+        </g>
+
+        <g class="node" data-node="ui" transform="translate(1040 422)">
+          <rect class="halo" x="-5" y="-5" width="140" height="98" rx="19"/><rect class="surface" width="130" height="88" rx="15"/>
+          <rect x="16" y="17" width="31" height="26" rx="5" fill="#202938" stroke="#42536b"/><path d="M20 23h23M20 29h15M20 35h19" stroke="#8dafdd" stroke-width="2"/>
+          <text class="label" x="57" y="33">管理页</text><text class="meta" x="57" y="52">Tauri UI</text><text class="badge" x="17" y="77" fill="#8dafdd">VISIBLE</text>
+        </g>
+
+        <g id="packets"></g>
+        <text id="planned" x="912" y="407" text-anchor="middle" fill="#ffc46c" font-size="10" font-weight="700" letter-spacing="1.2" opacity="0">STRUCTURED DIFF · PLANNED</text>
+      </svg>
+      <div class="legend"><span><i class="request"></i>请求</span><span><i class="response"></i>响应</span><span><i class="record"></i>本地记录</span></div>
+    </section>
+
+    <section class="explain" aria-live="polite"><div><h2 id="scenario-title">正常转发：代理保持透明</h2><p id="scenario-text">PAC 只把目标域名送进本地代理；代理连接真实后端，并把响应原样返回浏览器。</p></div><div class="state"><span>FRONTEND RECEIVES</span><strong id="scenario-result">REAL RESPONSE</strong></div></section>
+    <section class="facts" aria-label="关键约束"><div class="fact"><span>代理范围</span><strong>仅项目域名及子域名</strong></div><div class="fact"><span>数据位置</span><strong>SQLite 与 CA 全部保留在本机</strong></div><div class="fact"><span>HTTPS 前提</span><strong>浏览器信任本地开发 CA</strong></div></section>
+  </main>
+
+  <script>
+    const svg=document.getElementById('flow');
+    const packetLayer=document.getElementById('packets');
+    const title=document.getElementById('scenario-title');
+    const text=document.getElementById('scenario-text');
+    const result=document.getElementById('scenario-result');
+    const planned=document.getElementById('planned');
+    const toggle=document.getElementById('toggle');
+    const palette={request:'#ff817b',response:'#6cbcff',record:'#65dda4',mock:'#b9f45e',verify:'#ffc46c',config:'#bd96ff'};
+    const scenarios={
+      proxy:{title:'正常转发：代理保持透明',text:'PAC 只把目标域名送进本地代理；代理连接真实后端，并把响应原样返回浏览器。',result:'REAL RESPONSE',nodes:['browser','pac','proxy','backend'],routes:['pac-config','request-proxy','proxy-backend','backend-proxy','proxy-browser'],packets:[['pac-config','config',0,3.2],['request-proxy','request',.6,2.1],['proxy-backend','request',1.5,2.1],['backend-proxy','response',2.8,2.1],['proxy-browser','response',3.8,2.1]]},
+      record:{title:'录制接口：真实响应照常返回，同时保存快照',text:'请求仍然访问真实后端；代理采集 Method、Path、Headers、Body、状态、耗时和响应，并按接口去重写入 SQLite。',result:'REAL RESPONSE + RECORD',nodes:['browser','pac','proxy','backend','store','ui'],routes:['pac-config','request-proxy','proxy-backend','backend-proxy','proxy-browser','proxy-store','store-ui'],packets:[['request-proxy','request',0,2],['proxy-backend','request',1.1,2],['backend-proxy','response',2.3,2],['proxy-store','record',3.2,2.2],['store-ui','record',4.1,1.4],['proxy-browser','response',3.2,2]]},
+      mock:{title:'Mock 响应：在本机立即接管接口',text:'代理先匹配启用规则；命中 Host、Path 和 Method 后直接构造响应，前端不必等待尚未完成的后端。当前版本不会访问真实后端。',result:'MOCK RESPONSE',nodes:['browser','pac','proxy','mock'],routes:['pac-config','request-proxy','proxy-mock','mock-proxy','proxy-browser'],packets:[['request-proxy','request',0,2],['proxy-mock','request',1,1.7],['mock-proxy','mock',2,1.7],['proxy-browser','mock',2.9,2]]},
+      verify:{title:'契约校验：让 Mock 最终安全退出（规划）',text:'计划对安全请求并行获取真实响应，与 Mock 契约做结构化 Diff；一致标记 Compatible，不一致展示字段差异。写请求不会默认镜像。',result:'MOCK + CONTRACT STATUS',nodes:['browser','pac','proxy','backend','mock','store','ui'],routes:['pac-config','request-proxy','proxy-mock','mock-proxy','proxy-browser','proxy-backend','backend-proxy','backend-compare','mock-compare','proxy-store','store-ui'],packets:[['request-proxy','request',0,2],['proxy-mock','request',1,1.6],['mock-proxy','mock',1.9,1.6],['proxy-browser','mock',2.7,2],['proxy-backend','verify',1.2,2],['backend-proxy','response',2.4,2],['backend-compare','verify',3.4,1.5],['mock-compare','verify',3.4,1.5],['proxy-store','record',4.2,2],['store-ui','record',5.2,1.4]]}
+    };
+    let mode='proxy';let playing=true;
+    function packet(pathId,tone,delay,duration){
+      const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('r','5');circle.setAttribute('fill',palette[tone]);circle.setAttribute('color',palette[tone]);circle.setAttribute('class','packet');
+      const motion=document.createElementNS('http://www.w3.org/2000/svg','animateMotion');motion.setAttribute('dur',duration+'s');motion.setAttribute('begin',delay+'s');motion.setAttribute('repeatCount','indefinite');motion.setAttribute('rotate','auto');
+      const ref=document.createElementNS('http://www.w3.org/2000/svg','mpath');ref.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+pathId);motion.appendChild(ref);circle.appendChild(motion);packetLayer.appendChild(circle);
+    }
+    function render(next){
+      mode=next;const scene=scenarios[mode];
+      document.querySelectorAll('.mode').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===mode)));
+      document.querySelectorAll('.route').forEach(route=>route.classList.toggle('active',scene.routes.includes(route.id)));
+      document.querySelectorAll('.node').forEach(node=>{const active=scene.nodes.includes(node.dataset.node);node.classList.toggle('active',active);node.classList.toggle('dim',!active)});
+      packetLayer.replaceChildren();scene.packets.forEach(args=>packet(...args));
+      title.textContent=scene.title;text.textContent=scene.text;result.textContent=scene.result;planned.setAttribute('opacity',mode==='verify'?'1':'0');
+      svg.setCurrentTime(0);playing=true;toggle.textContent='暂停';
+    }
+    document.querySelectorAll('.mode').forEach(button=>button.addEventListener('click',()=>render(button.dataset.mode)));
+    toggle.addEventListener('click',()=>{playing=!playing;if(playing){svg.unpauseAnimations();toggle.textContent='暂停'}else{svg.pauseAnimations();toggle.textContent='继续'}});
+    document.getElementById('restart').addEventListener('click',()=>{svg.setCurrentTime(0);if(!playing){svg.unpauseAnimations();playing=true;toggle.textContent='暂停'}});
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){svg.pauseAnimations();playing=false;toggle.textContent='继续'}
+    render('proxy');
+  </script>
+</body>
+</html>

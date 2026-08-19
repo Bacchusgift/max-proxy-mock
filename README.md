@@ -110,8 +110,8 @@ GitHub Actions 包含两条流水线：
 发布一个新版本前，先让 `src-tauri/tauri.conf.json` 与 `src-tauri/Cargo.toml` 的版本一致，然后执行：
 
 ```bash
-git tag v0.2.1
-git push origin v0.2.1
+git tag v0.2.2
+git push origin v0.2.2
 ```
 
 Release 会包含：

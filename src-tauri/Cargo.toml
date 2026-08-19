@@ -1,6 +1,6 @@
 [package]
 name = "max-proxy-mock"
-version = "0.2.1"
+version = "0.2.2"
 description = "Local API recording, mocking and contract convergence desktop app"
 authors = ["Max Proxy Mock"]
 edition = "2021"

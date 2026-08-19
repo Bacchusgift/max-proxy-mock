@@ -9,8 +9,12 @@ if (args[0] === "dev") {
   await prepareDevelopmentPorts();
 }
 
-const executable = path.join(root, "node_modules", ".bin", process.platform === "win32" ? "tauri.cmd" : "tauri");
-const result = spawnSync(executable, args, { cwd: root, env: process.env, stdio: "inherit" });
+const tauriEntry = path.join(root, "node_modules", "@tauri-apps", "cli", "tauri.js");
+const result = spawnSync(process.execPath, [tauriEntry, ...args], {
+  cwd: root,
+  env: process.env,
+  stdio: "inherit",
+});
 process.exit(result.status ?? 1);
 
 async function prepareDevelopmentPorts() {
